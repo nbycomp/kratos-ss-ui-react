@@ -2,14 +2,16 @@ session:
   lifespan: 24h
 serve:
   public:
-    base_url: http://127.0.0.1:4455/.ory/kratos/public/
+    base_url: http://127.0.0.1:4455/
+    cors:
+      enabled: true
   admin:
     base_url: http://kratos:4434/
 selfservice:
   default_browser_return_url: http://127.0.0.1:4455/
   whitelisted_return_urls:
     - http://127.0.0.1:4455
-  strategies:
+  methods:
     password:
       enabled: true
   flows:
@@ -31,9 +33,9 @@ selfservice:
         default_browser_return_url: http://127.0.0.1:4455/
     login:
       ui_url: http://127.0.0.1:4455/auth/login
-      request_lifespan: 10m
+      lifespan: 10m
     registration:
-      request_lifespan: 10m
+      lifespan: 10m
       ui_url: http://127.0.0.1:4455/auth/registration
       after:
         password:

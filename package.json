@@ -5,7 +5,7 @@
   "homepage": "http://127.0.0.1:4435",
   "proxy": "http://127.0.0.1:4435",
   "dependencies": {
-    "@oryd/kratos-client": "^0.4.6-alpha.1",
+    "@oryd/kratos-client": "^0.5.4-alpha.1",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",

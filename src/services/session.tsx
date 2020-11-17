@@ -1,41 +1,44 @@
-import React, { createContext, useContext, useEffect, useState } from "react"
-import { PublicApi, Session } from "@oryd/kratos-client"
-import { isAuthenticated, unsetAuthenticated, login, refresh } from "services/auth"
-import config from "config/kratos"
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { Session } from "@oryd/kratos-client";
+import { kratos } from "./kratos";
 
-const kratos = new PublicApi(config.kratos.public)
+interface SessionState {
+  session: Session | undefined;
+  isInit: boolean;
+  isFetching: boolean;
+}
 
-const SessionContext = createContext(
-  new Session()
-)
+const SessionContext = createContext<SessionState>({
+  session: undefined,
+  isInit: true,
+  isFetching: false,
+});
 
-export const useSession = () => useContext(SessionContext)
+export const useSession = () => useContext(SessionContext);
+
+const getSession = () => kratos().whoami();
 
 export const SessionProvider: React.FunctionComponent = ({ children }) => {
-  const [session, setSession] = useState(
-    new Session()
-  )
+  const [isInit, setIsInit] = useState(true);
+  const [isFetching, setIsFetching] = useState(false);
+  const [session, setSession] = useState<Session | undefined>();
 
   useEffect(() => {
-    isAuthenticated() && kratos.whoami()
-      .then(({ body }) => {
-        const now = new Date()
-        const expiry = body.expiresAt
-        // Expired sessions need to be refreshed.
-        if (now > expiry) return refresh()
-        else setSession(body)
+    setIsFetching(true);
+    setIsInit(false);
+    getSession()
+      .then(({ data }) => {
+        setSession(data);
       })
-      .catch(error => {
-        // Request may fail due to an expired token.
-        unsetAuthenticated()
-        console.log(error)
-        login({ setReferer: false })
+      .catch((error) => {
+        console.log(error);
       })
-  }, [])
+      .finally(() => setIsFetching(false));
+  }, []);
 
   return (
-    <SessionContext.Provider value={ session }>
-      { children }
+    <SessionContext.Provider value={{ session, isInit, isFetching }}>
+      {children}
     </SessionContext.Provider>
-  )
-}
+  );
+};
